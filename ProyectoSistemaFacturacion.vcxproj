@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="backend-cpp\include\models\Producto.h" />
+    <ClInclude Include="backend-cpp\include\repositories\ProductoRepository.h" />
     <ClInclude Include="backend-cpp\include\services\InventarioService.h" />
     <ClInclude Include="backend-cpp\include\structures\ArbolAVL.h" />
     <ClInclude Include="backend-cpp\include\structures\NodoAVL.h" />
@@ -135,6 +136,7 @@
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\main.cpp" />
     <ClCompile Include="backend-cpp\src\models\Producto.cpp" />
+    <ClCompile Include="backend-cpp\src\repositories\ProductoRepository.cpp" />
     <ClCompile Include="backend-cpp\src\services\InventarioService.cpp" />
     <ClCompile Include="backend-cpp\src\structures\ArbolAVL.cpp" />
     <ClCompile Include="backend-cpp\src\structures\NodoAVL.cpp" />

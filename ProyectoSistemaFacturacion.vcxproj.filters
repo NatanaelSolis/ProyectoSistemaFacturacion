@@ -27,6 +27,9 @@
     <ClInclude Include="backend-cpp\include\structures\NodoAVL.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="backend-cpp\include\repositories\ProductoRepository.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\main.cpp">
@@ -42,6 +45,9 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="backend-cpp\src\models\Producto.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\repositories\ProductoRepository.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
