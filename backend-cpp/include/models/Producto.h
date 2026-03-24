@@ -1,28 +1,48 @@
 #pragma once
-
 #include <string>
+#include <iostream>
+
+using namespace std;
 
 class Producto
 {
 private:
     int codigo;
-    std::string nombre;
+    string nombre;
+    string categoria;
+    string marca;
     double precio;
-    int cantidadStock;
+    int stock;
+    string estado;
 
 public:
+    // Constructores
     Producto();
-    Producto(int codigo, const std::string& nombre, double precio, int cantidadStock);
+    Producto(int codigo, string nombre, string categoria, string marca, double precio, int stock, string estado);
 
+    // Getters tradicionales
+    int getCodigo() const;
+    string getNombre() const;
+    string getCategoria() const;
+    string getMarca() const;
+    double getPrecio() const;
+    int getStock() const;
+    string getEstado() const;
+
+    // Setters
+    void setCodigo(int codigo);
+    void setNombre(string nombre);
+    void setCategoria(string categoria);
+    void setMarca(string marca);
+    void setPrecio(double precio);
+    void setStock(int stock);
+    void setEstado(string estado);
+
+    // Métodos auxiliares
+    bool estaActivo() const;
+    void mostrar() const;
+
+    // MÉTODOS DE COMPATIBILIDAD CON TU AVL ACTUAL
     int obtenerCodigo() const;
-    std::string obtenerNombre() const;
-    double obtenerPrecio() const;
-    int obtenerCantidadStock() const;
-
-    void establecerCodigo(int codigo);
-    void establecerNombre(const std::string& nombre);
-    void establecerPrecio(double precio);
-    void establecerCantidadStock(int cantidadStock);
-
-    std::string convertirATexto() const;
+    string convertirATexto() const;
 };

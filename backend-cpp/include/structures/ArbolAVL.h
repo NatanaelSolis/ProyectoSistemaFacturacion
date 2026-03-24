@@ -18,10 +18,17 @@ private:
     NodoAVL* buscar(NodoAVL* nodo, int codigo);
     void mostrarEnOrden(NodoAVL* nodo);
 
+    NodoAVL* obtenerNodoMinimo(NodoAVL* nodo);
+    NodoAVL* eliminar(NodoAVL* nodo, int codigo);
+
+
 public:
     ArbolAVL();
 
     void insertarProducto(const Producto& producto);
     Producto* buscarProductoPorCodigo(int codigo);
     void mostrarEnOrden();
+
+    void eliminarProductoPorCodigo(int codigo);
+
 };

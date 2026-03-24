@@ -1,65 +1,36 @@
+#include <iostream>
 #include "../include/structures/ArbolAVL.h"
 
-#include <iostream>
+using namespace std;
 
 int main()
 {
-    ArbolAVL inventario;
+    ArbolAVL arbol;
 
-    // Crear productos de prueba
-    Producto producto1(103, "Mouse", 8500.0, 15);
-    Producto producto2(101, "Teclado", 12500.0, 10);
-    Producto producto3(105, "Monitor", 89500.0, 5);
-    Producto producto4(102, "Audifonos", 18900.0, 20);
-    Producto producto5(104, "Laptop", 450000.0, 3);
+    arbol.insertarProducto(Producto(1001, "Sauvage", "Perfume", "Dior", 52990, 8, "Activo"));
+    arbol.insertarProducto(Producto(1005, "Light Blue", "Perfume", "Dolce & Gabbana", 48990, 5, "Activo"));
+    arbol.insertarProducto(Producto(1003, "212 VIP", "Perfume", "Carolina Herrera", 45990, 10, "Activo"));
 
-    // Insertar productos en el árbol AVL
-    inventario.insertarProducto(producto1);
-    inventario.insertarProducto(producto2);
-    inventario.insertarProducto(producto3);
-    inventario.insertarProducto(producto4);
-    inventario.insertarProducto(producto5);
+    cout << "=== INVENTARIO INICIAL ===" << endl;
+    arbol.mostrarEnOrden();
 
-    std::cout << "========================================" << std::endl;
-    std::cout << "PRODUCTOS REGISTRADOS EN ORDEN" << std::endl;
-    std::cout << "========================================" << std::endl;
-    inventario.mostrarEnOrden();
+    cout << endl << "=== BUSCAR 1003 ===" << endl;
+    Producto* encontrado = arbol.buscarProductoPorCodigo(1003);
 
-    std::cout << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "BUSQUEDA DE PRODUCTO" << std::endl;
-    std::cout << "========================================" << std::endl;
-
-    int codigoBuscado = 102;
-    Producto* productoEncontrado = inventario.buscarProductoPorCodigo(codigoBuscado);
-
-    if (productoEncontrado != nullptr)
+    if (encontrado != nullptr)
     {
-        std::cout << "Producto encontrado:" << std::endl;
-        std::cout << productoEncontrado->convertirATexto() << std::endl;
+        encontrado->mostrar();
     }
     else
     {
-        std::cout << "No se encontro un producto con el codigo " << codigoBuscado << std::endl;
+        cout << "Producto no encontrado" << endl;
     }
 
-    std::cout << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "BUSQUEDA DE PRODUCTO NO EXISTENTE" << std::endl;
-    std::cout << "========================================" << std::endl;
+    cout << endl << "=== ELIMINAR 1005 ===" << endl;
+    arbol.eliminarProductoPorCodigo(1005);
 
-    codigoBuscado = 999;
-    productoEncontrado = inventario.buscarProductoPorCodigo(codigoBuscado);
-
-    if (productoEncontrado != nullptr)
-    {
-        std::cout << "Producto encontrado:" << std::endl;
-        std::cout << productoEncontrado->convertirATexto() << std::endl;
-    }
-    else
-    {
-        std::cout << "No se encontro un producto con el codigo " << codigoBuscado << std::endl;
-    }
+    cout << endl << "=== INVENTARIO FINAL ===" << endl;
+    arbol.mostrarEnOrden();
 
     return 0;
 }

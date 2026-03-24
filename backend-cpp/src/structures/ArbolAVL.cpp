@@ -179,3 +179,118 @@ void ArbolAVL::mostrarEnOrden()
 {
     mostrarEnOrden(raiz);
 }
+
+NodoAVL* ArbolAVL::obtenerNodoMinimo(NodoAVL* nodo)
+{
+    NodoAVL* actual = nodo;
+
+    while (actual != nullptr && actual->izquierdo != nullptr)
+    {
+        actual = actual->izquierdo;
+    }
+
+    return actual;
+
+}
+
+NodoAVL* ArbolAVL::eliminar(NodoAVL* nodo, int codigo)
+{
+    if (nodo == nullptr)
+    {
+        return nodo;
+    }
+
+    //Buscar el nodo a eliminar
+    if (codigo < nodo->producto.obtenerCodigo())
+    {
+        nodo->izquierdo = eliminar(nodo->izquierdo, codigo);
+    }
+    else if (codigo > nodo->producto.obtenerCodigo())
+    {
+        nodo->derecho = eliminar(nodo->derecho, codigo);
+    }
+    else
+    {
+        //Caso 1 y 2: tiene cero o un hijo
+        if (nodo->izquierdo == nullptr || nodo->derecho == nullptr)
+        {
+            NodoAVL* temp = nullptr;
+
+            if (nodo->izquierdo != nullptr) 
+            {
+                temp = nodo->izquierdo;
+            }
+            else
+            {
+                temp = nodo->derecho;
+            }
+
+            //Caso sin hijos
+
+            if (temp == nullptr)
+            {
+                temp = nodo;
+                nodo = nullptr;
+            }
+            else
+            {
+                *nodo = *temp;
+            }
+            delete temp;
+        }
+        else
+        {
+            NodoAVL* temp = obtenerNodoMinimo(nodo->derecho);
+
+            nodo->producto = temp->producto;
+
+            nodo->derecho = eliminar(nodo->derecho, temp->producto.obtenerCodigo());
+        }
+    }
+
+    // Si el árbol quedó vacío
+    if (nodo == nullptr)
+    {
+        return nodo;
+    }
+
+    // Actualizar altura
+    nodo->altura = 1 + obtenerMayor(obtenerAltura(nodo->izquierdo), obtenerAltura(nodo->derecho));
+
+    // Obtener balance
+    int balance = obtenerBalance(nodo);
+
+    // Caso Izquierda-Izquierda
+    if (balance > 1 && obtenerBalance(nodo->izquierdo) >= 0)
+    {
+        return rotarDerecha(nodo);
+    }
+
+    // Caso Izquierda-Derecha
+    if (balance > 1 && obtenerBalance(nodo->izquierdo) < 0)
+    {
+        nodo->izquierdo = rotarIzquierda(nodo->izquierdo);
+        return rotarDerecha(nodo);
+    }
+
+    // Caso Derecha-Derecha
+    if (balance < -1 && obtenerBalance(nodo->derecho) <= 0)
+    {
+        return rotarIzquierda(nodo);
+    }
+
+    // Caso Derecha-Izquierda
+    if (balance < -1 && obtenerBalance(nodo->derecho) > 0)
+    {
+        nodo->derecho = rotarDerecha(nodo->derecho);
+        return rotarIzquierda(nodo);
+    }
+
+    return nodo;
+
+}
+
+void ArbolAVL::eliminarProductoPorCodigo(int codigo)
+{
+    raiz = eliminar(raiz, codigo);
+}
