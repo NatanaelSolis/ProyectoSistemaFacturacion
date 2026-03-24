@@ -1,32 +1,25 @@
-#pragma once
+#include "../../include/services/InventarioService.h"
 
-#include <string>
-
-class Producto
+// Registra un producto en el inventario
+void InventarioService::registrarProducto(const Producto& producto)
 {
-private:
-    int codigo;
-    std::string nombre;
-    double precio;
-    int cantidadStock;
+    arbolProductos.insertarProducto(producto);
+}
 
-public:
-    // Constructores
-    Producto();
-    Producto(int codigo, const std::string& nombre, double precio, int cantidadStock);
+// Busca un producto por código
+Producto* InventarioService::buscarProductoPorCodigo(int codigo)
+{
+    return arbolProductos.buscarProductoPorCodigo(codigo);
+}
 
-    // Getters
-    int obtenerCodigo() const;
-    std::string obtenerNombre() const;
-    double obtenerPrecio() const;
-    int obtenerCantidadStock() const;
+// Elimina un producto por código
+void InventarioService::eliminarProductoPorCodigo(int codigo)
+{
+    arbolProductos.eliminarProductoPorCodigo(codigo);
+}
 
-    // Setters
-    void establecerCodigo(int codigo);
-    void establecerNombre(const std::string& nombre);
-    void establecerPrecio(double precio);
-    void establecerCantidadStock(int cantidadStock);
-
-    // Método utilitario para mostrar la información del producto
-    std::string convertirATexto() const;
-};
+// Muestra todos los productos en orden
+void InventarioService::mostrarInventario()
+{
+    arbolProductos.mostrarEnOrden();
+}
