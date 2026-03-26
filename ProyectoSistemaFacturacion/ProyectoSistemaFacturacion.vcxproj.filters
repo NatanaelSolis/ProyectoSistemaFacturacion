@@ -36,6 +36,15 @@
     <ClInclude Include="backend-cpp\include\models\Cliente.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="backend-cpp\include\clients\ApiClienteClient.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\repositories\ClienteRepository.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\services\ClienteService.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\main.cpp">
@@ -57,6 +66,18 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="backend-cpp\src\clients\ApiProductoClient.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\models\Cliente.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\clients\ApiClienteClient.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\repositories\ClienteRepository.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\services\ClienteService.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
