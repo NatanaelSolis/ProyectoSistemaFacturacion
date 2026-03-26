@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="backend-cpp\include\clients\ApiProductoClient.h" />
+    <ClInclude Include="backend-cpp\include\models\Cliente.h" />
     <ClInclude Include="backend-cpp\include\models\Producto.h" />
     <ClInclude Include="backend-cpp\include\repositories\ProductoRepository.h" />
     <ClInclude Include="backend-cpp\include\services\InventarioService.h" />
@@ -134,6 +136,7 @@
     <ClInclude Include="backend-cpp\include\structures\NodoAVL.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="backend-cpp\src\clients\ApiProductoClient.cpp" />
     <ClCompile Include="backend-cpp\src\main.cpp" />
     <ClCompile Include="backend-cpp\src\models\Producto.cpp" />
     <ClCompile Include="backend-cpp\src\repositories\ProductoRepository.cpp" />

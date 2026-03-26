@@ -11,5 +11,6 @@ namespace FacturacionApi.Data
         }
 
         public DbSet<Producto> Productos { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
     }
 }

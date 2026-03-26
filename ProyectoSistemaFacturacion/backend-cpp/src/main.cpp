@@ -19,6 +19,13 @@ void mostrarMenu()
 int main()
 {
     InventarioService inventario;
+    int cantidadCargada = inventario.cargarProductosIniciales();
+
+    cout << "==============================================" << endl;
+    cout << "Sistema de Inventario iniciado correctamente." << endl;
+    cout << "Productos cargados desde API/Azure: " << cantidadCargada << endl;
+    cout << "==============================================" << endl;
+
     int opcion = 0;
 
     do
@@ -64,9 +71,16 @@ int main()
             getline(cin, estado);
 
             Producto nuevoProducto(codigo, nombre, categoria, marca, precio, stock, estado);
-            inventario.registrarProducto(nuevoProducto);
 
-            cout << "Producto registrado correctamente." << endl;
+            if (inventario.registrarProducto(nuevoProducto))
+            {
+                cout << "Producto registrado correctamente en API y AVL." << endl;
+            }
+            else
+            {
+                cout << "No se pudo registrar el producto. Puede que el codigo ya exista o que la API no este disponible." << endl;
+            }
+
             break;
         }
 
@@ -96,8 +110,15 @@ int main()
             cout << "Ingrese el codigo a eliminar: ";
             cin >> codigo;
 
-            inventario.eliminarProductoPorCodigo(codigo);
-            cout << "Operacion de eliminacion ejecutada." << endl;
+            if (inventario.eliminarProductoPorCodigo(codigo))
+            {
+                cout << "Producto eliminado correctamente de API y AVL." << endl;
+            }
+            else
+            {
+                cout << "No se pudo eliminar el producto. Puede que no exista o que la API no este disponible." << endl;
+            }
+
             break;
         }
 
