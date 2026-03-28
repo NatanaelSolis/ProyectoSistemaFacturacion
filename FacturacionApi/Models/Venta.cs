@@ -21,6 +21,10 @@ namespace FacturacionApi.Models
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
+        public decimal IVA { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Total { get; set; }
 
         [Required]

@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "../include/services/InventarioService.h"
 #include "../include/services/ClienteService.h"
+#include "../include/services/VentaService.h"
 
 using namespace std;
 
@@ -12,7 +14,8 @@ void mostrarMenuPrincipal()
     cout << "============= MENU PRINCIPAL =============" << endl;
     cout << "1. Gestionar productos" << endl;
     cout << "2. Gestionar clientes" << endl;
-    cout << "3. Salir" << endl;
+    cout << "3. Gestionar ventas" << endl;
+    cout << "4. Salir" << endl;
     cout << "Seleccione una opcion: ";
 }
 
@@ -40,18 +43,32 @@ void mostrarMenuClientes()
     cout << "Seleccione una opcion: ";
 }
 
+void mostrarMenuVentas()
+{
+    cout << endl;
+    cout << "========= MENU VENTAS =========" << endl;
+    cout << "1. Registrar venta" << endl;
+    cout << "2. Buscar venta por numero" << endl;
+    cout << "3. Mostrar ventas" << endl;
+    cout << "4. Volver al menu principal" << endl;
+    cout << "Seleccione una opcion: ";
+}
+
 int main()
 {
     InventarioService inventario;
     ClienteService clienteService;
+    VentaService ventaService;
 
     int cantidadProductos = inventario.cargarProductosIniciales();
     int cantidadClientes = clienteService.cargarClientesIniciales();
+    ventaService.cargarVentasIniciales();
 
     cout << "==============================================" << endl;
     cout << "Sistema iniciado correctamente." << endl;
     cout << "Productos cargados desde API/Azure: " << cantidadProductos << endl;
     cout << "Clientes cargados desde API/Azure: " << cantidadClientes << endl;
+    cout << "Ventas cargadas desde API/Azure." << endl;
     cout << "==============================================" << endl;
 
     int opcionPrincipal = 0;
@@ -303,6 +320,110 @@ int main()
 
         case 3:
         {
+            int opcionVentas = 0;
+
+            do
+            {
+                mostrarMenuVentas();
+                cin >> opcionVentas;
+
+                switch (opcionVentas)
+                {
+                case 1:
+                {
+                    int clienteId;
+                    int cantidadDetalles;
+
+                    cout << "Ingrese el ID del cliente: ";
+                    cin >> clienteId;
+
+                    cout << "Cuantos productos desea agregar a la venta: ";
+                    cin >> cantidadDetalles;
+
+                    vector<DetalleVenta> detalles;
+
+                    for (int i = 0; i < cantidadDetalles; i++)
+                    {
+                        int productoCodigo;
+                        int cantidad;
+
+                        cout << "Producto #" << (i + 1) << endl;
+                        cout << "Codigo del producto: ";
+                        cin >> productoCodigo;
+                        cout << "Cantidad: ";
+                        cin >> cantidad;
+
+                        DetalleVenta detalle;
+                        detalle.setProductoCodigo(productoCodigo);
+                        detalle.setCantidad(cantidad);
+
+                        detalles.push_back(detalle);
+                    }
+
+                    Venta ventaRegistrada;
+
+                    if (ventaService.registrarVenta(clienteId, detalles, ventaRegistrada))
+                    {
+                        cout << "Venta registrada correctamente." << endl;
+                        cout << "Numero generado: " << ventaRegistrada.getNumero() << endl;
+                        cout << "Total: " << ventaRegistrada.getTotal() << endl;
+                    }
+                    else
+                    {
+                        cout << "No se pudo registrar la venta. Revise cliente, productos, stock o disponibilidad de la API." << endl;
+                    }
+
+                    break;
+                }
+
+                case 2:
+                {
+                    int numero;
+                    cout << "Ingrese el numero de la venta: ";
+                    cin >> numero;
+
+                    Venta* encontrada = ventaService.buscarVentaPorNumero(numero);
+
+                    if (encontrada != nullptr)
+                    {
+                        cout << endl << "Venta encontrada:" << endl;
+                        encontrada->mostrar();
+                    }
+                    else
+                    {
+                        cout << "Venta no encontrada." << endl;
+                    }
+
+                    break;
+                }
+
+                case 3:
+                {
+                    cout << endl << "=== VENTAS ACTUALES ===" << endl;
+                    ventaService.mostrarVentas();
+                    break;
+                }
+
+                case 4:
+                {
+                    cout << "Volviendo al menu principal..." << endl;
+                    break;
+                }
+
+                default:
+                {
+                    cout << "Opcion invalida." << endl;
+                    break;
+                }
+                }
+
+            } while (opcionVentas != 4);
+
+            break;
+        }
+
+        case 4:
+        {
             cout << "Saliendo del sistema..." << endl;
             break;
         }
@@ -314,7 +435,7 @@ int main()
         }
         }
 
-    } while (opcionPrincipal != 3);
+    } while (opcionPrincipal != 4);
 
     return 0;
 }

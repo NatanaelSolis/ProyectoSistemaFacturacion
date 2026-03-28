@@ -36,6 +36,10 @@ namespace FacturacionApi.Data
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Venta>()
+                .Property(v => v.IVA)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Venta>()
                 .Property(v => v.Total)
                 .HasPrecision(18, 2);
 

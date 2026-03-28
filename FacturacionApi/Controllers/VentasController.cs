@@ -29,6 +29,7 @@ namespace FacturacionApi.Controllers
                     v.Fecha,
                     v.ClienteId,
                     v.Subtotal,
+                    v.IVA,
                     v.Total,
                     v.Estado,
                     Detalles = v.Detalles.Select(d => new
@@ -57,6 +58,7 @@ namespace FacturacionApi.Controllers
                     v.Fecha,
                     v.ClienteId,
                     v.Subtotal,
+                    v.IVA,
                     v.Total,
                     v.Estado,
                     Detalles = v.Detalles.Select(d => new
@@ -137,37 +139,43 @@ namespace FacturacionApi.Controllers
                     Fecha = DateTime.UtcNow,
                     Estado = "Registrada",
                     Subtotal = 0,
+                    IVA = 0,
                     Total = 0
                 };
 
                 _context.Ventas.Add(venta);
                 await _context.SaveChangesAsync();
 
-                decimal subtotalVenta = 0;
+                decimal totalVentaConIva = 0m;
 
                 foreach (var item in request.Detalles)
                 {
                     var producto = productos.First(p => p.Codigo == item.ProductoCodigo);
-                    decimal precioUnitario = producto.Precio;
-                    decimal subtotalLinea = precioUnitario * item.Cantidad;
+
+                    decimal precioUnitarioConIva = producto.Precio;
+                    decimal subtotalLineaConIva = precioUnitarioConIva * item.Cantidad;
 
                     var detalle = new DetalleVenta
                     {
                         VentaNumero = venta.Numero,
                         ProductoCodigo = producto.Codigo,
                         Cantidad = item.Cantidad,
-                        PrecioUnitario = precioUnitario,
-                        Subtotal = subtotalLinea
+                        PrecioUnitario = precioUnitarioConIva,
+                        Subtotal = subtotalLineaConIva
                     };
 
                     _context.DetalleVenta.Add(detalle);
 
                     producto.Stock -= item.Cantidad;
-                    subtotalVenta += subtotalLinea;
+                    totalVentaConIva += subtotalLineaConIva;
                 }
 
-                venta.Subtotal = subtotalVenta;
-                venta.Total = subtotalVenta;
+                decimal subtotalSinIva = Math.Round(totalVentaConIva / 1.13m, 2, MidpointRounding.AwayFromZero);
+                decimal ivaIncluido = Math.Round(totalVentaConIva - subtotalSinIva, 2, MidpointRounding.AwayFromZero);
+
+                venta.Subtotal = subtotalSinIva;
+                venta.IVA = ivaIncluido;
+                venta.Total = totalVentaConIva;
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -181,6 +189,7 @@ namespace FacturacionApi.Controllers
                         venta.Fecha,
                         venta.ClienteId,
                         venta.Subtotal,
+                        venta.IVA,
                         venta.Total,
                         venta.Estado
                     });

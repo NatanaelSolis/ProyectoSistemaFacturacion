@@ -45,6 +45,21 @@
     <ClInclude Include="backend-cpp\include\services\ClienteService.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="backend-cpp\include\models\DetalleVenta.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\models\Venta.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\clients\ApiVentaClient.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\repositories\VentaRepository.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\services\VentaService.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\main.cpp">
@@ -78,6 +93,21 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="backend-cpp\src\services\ClienteService.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\models\DetalleVenta.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\models\Venta.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\clients\ApiVentaClient.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\repositories\VentaRepository.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\services\VentaService.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
