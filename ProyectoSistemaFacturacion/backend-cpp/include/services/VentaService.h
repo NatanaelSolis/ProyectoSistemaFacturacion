@@ -3,12 +3,14 @@
 #include <map>
 #include "../models/Venta.h"
 #include "../repositories/VentaRepository.h"
+#include "../structures/ArbolBMasVentas.h"
 
 class VentaService
 {
 private:
     std::map<int, Venta> ventas;
     VentaRepository ventaRepository;
+    ArbolBMasVentas arbolBMasVentas;
 
 public:
     VentaService();

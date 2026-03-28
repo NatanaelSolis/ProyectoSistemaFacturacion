@@ -141,7 +141,9 @@
     <ClInclude Include="backend-cpp\include\services\InventarioService.h" />
     <ClInclude Include="backend-cpp\include\services\VentaService.h" />
     <ClInclude Include="backend-cpp\include\structures\ArbolAVL.h" />
+    <ClInclude Include="backend-cpp\include\structures\ArbolBMasVentas.h" />
     <ClInclude Include="backend-cpp\include\structures\NodoAVL.h" />
+    <ClInclude Include="backend-cpp\include\structures\NodoBMas.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\clients\ApiClienteClient.cpp" />
@@ -159,6 +161,7 @@
     <ClCompile Include="backend-cpp\src\services\InventarioService.cpp" />
     <ClCompile Include="backend-cpp\src\services\VentaService.cpp" />
     <ClCompile Include="backend-cpp\src\structures\ArbolAVL.cpp" />
+    <ClCompile Include="backend-cpp\src\structures\ArbolBMasVentas.cpp" />
     <ClCompile Include="backend-cpp\src\structures\NodoAVL.cpp" />
   </ItemGroup>
   <ItemGroup>

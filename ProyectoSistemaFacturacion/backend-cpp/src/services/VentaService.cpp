@@ -4,6 +4,7 @@
 #include <vector>
 
 VentaService::VentaService()
+    : arbolBMasVentas(3)
 {
 }
 
@@ -17,13 +18,21 @@ bool VentaService::registrarVenta(int clienteId, const std::vector<DetalleVenta>
     }
 
     ventas[ventaRegistrada.getNumero()] = ventaRegistrada;
+    arbolBMasVentas.insertarVenta(ventaRegistrada);
+
     return true;
 }
 
 Venta* VentaService::buscarVentaPorNumero(int numero)
 {
-    auto it = ventas.find(numero);
+    Venta* ventaArbol = arbolBMasVentas.buscarVentaPorNumero(numero);
 
+    if (ventaArbol != nullptr)
+    {
+        return ventaArbol;
+    }
+
+    auto it = ventas.find(numero);
     if (it != ventas.end())
     {
         return &(it->second);
@@ -38,7 +47,9 @@ Venta* VentaService::buscarVentaPorNumero(int numero)
     }
 
     ventas[ventaApi.getNumero()] = ventaApi;
-    return &ventas[ventaApi.getNumero()];
+    arbolBMasVentas.insertarVenta(ventaApi);
+
+    return arbolBMasVentas.buscarVentaPorNumero(ventaApi.getNumero());
 }
 
 void VentaService::cargarVentasIniciales()
@@ -48,20 +59,11 @@ void VentaService::cargarVentasIniciales()
     for (const Venta& venta : ventasApi)
     {
         ventas[venta.getNumero()] = venta;
+        arbolBMasVentas.insertarVenta(venta);
     }
 }
 
 void VentaService::mostrarVentas() const
 {
-    if (ventas.empty())
-    {
-        std::cout << "No hay ventas registradas." << std::endl;
-        return;
-    }
-
-    for (const auto& par : ventas)
-    {
-        par.second.mostrar();
-        std::cout << "-----------------------------" << std::endl;
-    }
+    arbolBMasVentas.mostrarVentasEnOrden();
 }

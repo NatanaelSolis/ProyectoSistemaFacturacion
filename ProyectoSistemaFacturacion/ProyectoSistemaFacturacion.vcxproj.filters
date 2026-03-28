@@ -60,6 +60,12 @@
     <ClInclude Include="backend-cpp\include\services\VentaService.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="backend-cpp\include\structures\NodoBMas.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\structures\ArbolBMasVentas.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\main.cpp">
@@ -108,6 +114,9 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="backend-cpp\src\services\VentaService.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\structures\ArbolBMasVentas.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
