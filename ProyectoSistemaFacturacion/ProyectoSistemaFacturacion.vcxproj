@@ -131,7 +131,9 @@
     <ClInclude Include="backend-cpp\include\clients\ApiProductoClient.h" />
     <ClInclude Include="backend-cpp\include\clients\ApiVentaClient.h" />
     <ClInclude Include="backend-cpp\include\models\Cliente.h" />
+    <ClInclude Include="backend-cpp\include\structures\ColaPedidos.h" />
     <ClInclude Include="backend-cpp\include\models\DetalleVenta.h" />
+    <ClInclude Include="backend-cpp\include\models\PedidoPendiente.h" />
     <ClInclude Include="backend-cpp\include\models\Producto.h" />
     <ClInclude Include="backend-cpp\include\models\Venta.h" />
     <ClInclude Include="backend-cpp\include\repositories\ClienteRepository.h" />
@@ -139,6 +141,7 @@
     <ClInclude Include="backend-cpp\include\repositories\VentaRepository.h" />
     <ClInclude Include="backend-cpp\include\services\ClienteService.h" />
     <ClInclude Include="backend-cpp\include\services\InventarioService.h" />
+    <ClInclude Include="backend-cpp\include\services\PedidoService.h" />
     <ClInclude Include="backend-cpp\include\services\VentaService.h" />
     <ClInclude Include="backend-cpp\include\structures\ArbolAVL.h" />
     <ClInclude Include="backend-cpp\include\structures\ArbolBMasVentas.h" />
@@ -151,7 +154,9 @@
     <ClCompile Include="backend-cpp\src\clients\ApiVentaClient.cpp" />
     <ClCompile Include="backend-cpp\src\main.cpp" />
     <ClCompile Include="backend-cpp\src\models\Cliente.cpp" />
+    <ClCompile Include="backend-cpp\src\structures\ColaPedidos.cpp" />
     <ClCompile Include="backend-cpp\src\models\DetalleVenta.cpp" />
+    <ClCompile Include="backend-cpp\src\models\PedidoPendiente.cpp" />
     <ClCompile Include="backend-cpp\src\models\Producto.cpp" />
     <ClCompile Include="backend-cpp\src\models\Venta.cpp" />
     <ClCompile Include="backend-cpp\src\repositories\ClienteRepository.cpp" />
@@ -159,6 +164,7 @@
     <ClCompile Include="backend-cpp\src\repositories\VentaRepository.cpp" />
     <ClCompile Include="backend-cpp\src\services\ClienteService.cpp" />
     <ClCompile Include="backend-cpp\src\services\InventarioService.cpp" />
+    <ClCompile Include="backend-cpp\src\services\PedidoService.cpp" />
     <ClCompile Include="backend-cpp\src\services\VentaService.cpp" />
     <ClCompile Include="backend-cpp\src\structures\ArbolAVL.cpp" />
     <ClCompile Include="backend-cpp\src\structures\ArbolBMasVentas.cpp" />

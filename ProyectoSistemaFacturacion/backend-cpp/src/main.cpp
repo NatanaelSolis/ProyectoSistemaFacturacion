@@ -5,6 +5,7 @@
 #include "../include/services/InventarioService.h"
 #include "../include/services/ClienteService.h"
 #include "../include/services/VentaService.h"
+#include "../include/services/PedidoService.h"
 
 using namespace std;
 
@@ -15,7 +16,8 @@ void mostrarMenuPrincipal()
     cout << "1. Gestionar productos" << endl;
     cout << "2. Gestionar clientes" << endl;
     cout << "3. Gestionar ventas" << endl;
-    cout << "4. Salir" << endl;
+    cout << "4. Gestionar pedidos pendientes" << endl;
+    cout << "5. Salir" << endl;
     cout << "Seleccione una opcion: ";
 }
 
@@ -54,11 +56,24 @@ void mostrarMenuVentas()
     cout << "Seleccione una opcion: ";
 }
 
+void mostrarMenuPedidos()
+{
+    cout << endl;
+    cout << "========= MENU PEDIDOS PENDIENTES =========" << endl;
+    cout << "1. Crear y encolar pedido pendiente" << endl;
+    cout << "2. Ver siguiente pedido" << endl;
+    cout << "3. Atender siguiente pedido" << endl;
+    cout << "4. Mostrar cola de pedidos" << endl;
+    cout << "5. Volver al menu principal" << endl;
+    cout << "Seleccione una opcion: ";
+}
+
 int main()
 {
     InventarioService inventario;
     ClienteService clienteService;
     VentaService ventaService;
+    PedidoService pedidoService;
 
     int cantidadProductos = inventario.cargarProductosIniciales();
     int cantidadClientes = clienteService.cargarClientesIniciales();
@@ -69,6 +84,7 @@ int main()
     cout << "Productos cargados desde API/Azure: " << cantidadProductos << endl;
     cout << "Clientes cargados desde API/Azure: " << cantidadClientes << endl;
     cout << "Ventas cargadas desde API/Azure." << endl;
+    cout << "Cola de pedidos lista en memoria." << endl;
     cout << "==============================================" << endl;
 
     int opcionPrincipal = 0;
@@ -424,6 +440,100 @@ int main()
 
         case 4:
         {
+            int opcionPedidos = 0;
+
+            do
+            {
+                mostrarMenuPedidos();
+                cin >> opcionPedidos;
+
+                switch (opcionPedidos)
+                {
+                case 1:
+                {
+                    int clienteId;
+                    string fecha;
+                    double total;
+
+                    cout << "Ingrese el ID del cliente: ";
+                    cin >> clienteId;
+
+                    cin.ignore();
+
+                    cout << "Ingrese la fecha del pedido: ";
+                    getline(cin, fecha);
+
+                    cout << "Ingrese el total del pedido: ";
+                    cin >> total;
+
+                    PedidoPendiente pedidoCreado = pedidoService.crearYEncolarPedido(clienteId, fecha, total);
+
+                    cout << "Pedido pendiente creado y encolado correctamente." << endl;
+                    cout << "Numero generado: " << pedidoCreado.getNumero() << endl;
+
+                    break;
+                }
+
+                case 2:
+                {
+                    PedidoPendiente siguientePedido;
+
+                    if (pedidoService.verSiguientePedido(siguientePedido))
+                    {
+                        cout << endl << "=== SIGUIENTE PEDIDO EN COLA ===" << endl;
+                        siguientePedido.mostrar();
+                    }
+                    else
+                    {
+                        cout << "No hay pedidos pendientes en la cola." << endl;
+                    }
+
+                    break;
+                }
+
+                case 3:
+                {
+                    PedidoPendiente pedidoAtendido;
+
+                    if (pedidoService.atenderSiguientePedido(pedidoAtendido))
+                    {
+                        cout << "Se atendio el siguiente pedido correctamente:" << endl;
+                        pedidoAtendido.mostrar();
+                    }
+                    else
+                    {
+                        cout << "No hay pedidos pendientes para atender." << endl;
+                    }
+
+                    break;
+                }
+
+                case 4:
+                {
+                    pedidoService.mostrarPedidosPendientes();
+                    break;
+                }
+
+                case 5:
+                {
+                    cout << "Volviendo al menu principal..." << endl;
+                    break;
+                }
+
+                default:
+                {
+                    cout << "Opcion invalida." << endl;
+                    break;
+                }
+                }
+
+            } while (opcionPedidos != 5);
+
+            break;
+        }
+
+        case 5:
+        {
             cout << "Saliendo del sistema..." << endl;
             break;
         }
@@ -435,7 +545,7 @@ int main()
         }
         }
 
-    } while (opcionPrincipal != 4);
+    } while (opcionPrincipal != 5);
 
     return 0;
 }
