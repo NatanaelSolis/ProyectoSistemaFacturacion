@@ -5,5 +5,10 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="FacturacionApi/FacturacionApi.csproj" Id="311689a8-6d69-477b-93d7-d6c303e5ba4a" />
+  <Project Path="frontend-WebReact/frontend-webreact.esproj">
+    <Platform Project="AnyCPU" />
+    <Build />
+    <Deploy />
+  </Project>
   <Project Path="ProyectoSistemaFacturacion/ProyectoSistemaFacturacion.vcxproj" Id="99e38e88-88cb-4c17-b51d-c26a050c9c71" />
 </Solution>
