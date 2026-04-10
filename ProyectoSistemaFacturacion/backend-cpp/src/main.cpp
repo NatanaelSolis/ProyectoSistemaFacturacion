@@ -6,6 +6,7 @@
 #include "../include/services/ClienteService.h"
 #include "../include/services/VentaService.h"
 #include "../include/services/PedidoService.h"
+#include "../include/structures/RelacionProducto.h"
 
 using namespace std;
 
@@ -29,7 +30,16 @@ void mostrarMenuProductos()
     cout << "2. Buscar producto por codigo" << endl;
     cout << "3. Eliminar producto por codigo" << endl;
     cout << "4. Mostrar inventario" << endl;
-    cout << "5. Volver al menu principal" << endl;
+    cout << "5. Buscar productos por nombre" << endl;
+    cout << "6. Buscar productos por marca" << endl;
+    cout << "7. Buscar productos por categoria" << endl;
+    cout << "8. Mostrar tabla hash por nombre" << endl;
+    cout << "9. Mostrar tabla hash por marca" << endl;
+    cout << "10. Mostrar tabla hash por categoria" << endl;
+    cout << "11. Agregar relacion entre productos" << endl;
+    cout << "12. Ver relaciones de un producto" << endl;
+    cout << "13. Mostrar grafo de productos" << endl;
+    cout << "14. Volver al menu principal" << endl;
     cout << "Seleccione una opcion: ";
 }
 
@@ -66,6 +76,37 @@ void mostrarMenuPedidos()
     cout << "4. Mostrar cola de pedidos" << endl;
     cout << "5. Volver al menu principal" << endl;
     cout << "Seleccione una opcion: ";
+}
+
+void mostrarListaProductos(const vector<Producto>& productos)
+{
+    if (productos.empty())
+    {
+        cout << "No se encontraron productos." << endl;
+        return;
+    }
+
+    for (const auto& producto : productos)
+    {
+        producto.mostrar();
+        cout << "-----------------------------" << endl;
+    }
+}
+
+void mostrarRelacionesProducto(const vector<RelacionProducto>& relaciones)
+{
+    if (relaciones.empty())
+    {
+        cout << "Este producto no tiene relaciones registradas." << endl;
+        return;
+    }
+
+    for (const auto& relacion : relaciones)
+    {
+        cout << "Producto relacionado: " << relacion.getCodigoDestino() << endl;
+        cout << "Tipo de relacion: " << relacion.getTipoRelacion() << endl;
+        cout << "-----------------------------" << endl;
+    }
 }
 
 int main()
@@ -204,6 +245,111 @@ int main()
 
                 case 5:
                 {
+                    string nombre;
+                    cin.ignore();
+                    cout << "Ingrese el nombre a buscar: ";
+                    getline(cin, nombre);
+
+                    vector<Producto> encontrados = inventario.buscarProductosPorNombre(nombre);
+                    cout << endl << "=== RESULTADOS POR NOMBRE ===" << endl;
+                    mostrarListaProductos(encontrados);
+                    break;
+                }
+
+                case 6:
+                {
+                    string marca;
+                    cin.ignore();
+                    cout << "Ingrese la marca a buscar: ";
+                    getline(cin, marca);
+
+                    vector<Producto> encontrados = inventario.buscarProductosPorMarca(marca);
+                    cout << endl << "=== RESULTADOS POR MARCA ===" << endl;
+                    mostrarListaProductos(encontrados);
+                    break;
+                }
+
+                case 7:
+                {
+                    string categoria;
+                    cin.ignore();
+                    cout << "Ingrese la categoria a buscar: ";
+                    getline(cin, categoria);
+
+                    vector<Producto> encontrados = inventario.buscarProductosPorCategoria(categoria);
+                    cout << endl << "=== RESULTADOS POR CATEGORIA ===" << endl;
+                    mostrarListaProductos(encontrados);
+                    break;
+                }
+
+                case 8:
+                {
+                    inventario.mostrarTablaHashNombre();
+                    break;
+                }
+
+                case 9:
+                {
+                    inventario.mostrarTablaHashMarca();
+                    break;
+                }
+
+                case 10:
+                {
+                    inventario.mostrarTablaHashCategoria();
+                    break;
+                }
+
+                case 11:
+                {
+                    int codigoOrigen;
+                    int codigoDestino;
+                    string tipoRelacion;
+
+                    cout << "Ingrese el codigo del producto origen: ";
+                    cin >> codigoOrigen;
+
+                    cout << "Ingrese el codigo del producto destino: ";
+                    cin >> codigoDestino;
+
+                    cin.ignore();
+
+                    cout << "Ingrese el tipo de relacion: ";
+                    getline(cin, tipoRelacion);
+
+                    if (inventario.agregarRelacionEntreProductos(codigoOrigen, codigoDestino, tipoRelacion))
+                    {
+                        cout << "Relacion agregada correctamente." << endl;
+                    }
+                    else
+                    {
+                        cout << "No se pudo agregar la relacion. Verifique que ambos productos existan." << endl;
+                    }
+
+                    break;
+                }
+
+                case 12:
+                {
+                    int codigoProducto;
+                    cout << "Ingrese el codigo del producto: ";
+                    cin >> codigoProducto;
+
+                    vector<RelacionProducto> relaciones = inventario.obtenerRelacionesDeProducto(codigoProducto);
+
+                    cout << endl << "=== RELACIONES DEL PRODUCTO ===" << endl;
+                    mostrarRelacionesProducto(relaciones);
+                    break;
+                }
+
+                case 13:
+                {
+                    inventario.mostrarGrafoProductos();
+                    break;
+                }
+
+                case 14:
+                {
                     cout << "Volviendo al menu principal..." << endl;
                     break;
                 }
@@ -215,7 +361,7 @@ int main()
                 }
                 }
 
-            } while (opcionProductos != 5);
+            } while (opcionProductos != 14);
 
             break;
         }

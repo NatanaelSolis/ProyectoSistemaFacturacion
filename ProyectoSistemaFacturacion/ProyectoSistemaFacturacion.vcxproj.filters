@@ -75,6 +75,18 @@
     <ClInclude Include="backend-cpp\include\services\PedidoService.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="backend-cpp\include\structures\EntradaHashProducto.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\structures\TablaHashProductos.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\structures\RelacionProducto.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="backend-cpp\include\structures\GrafoProductos.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\main.cpp">
@@ -135,6 +147,18 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="backend-cpp\src\services\PedidoService.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\structures\EntradaHashProducto.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\structures\TablaHashProductos.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\structures\RelacionProducto.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="backend-cpp\src\structures\GrafoProductos.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>

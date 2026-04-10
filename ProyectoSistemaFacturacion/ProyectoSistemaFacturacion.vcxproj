@@ -145,8 +145,12 @@
     <ClInclude Include="backend-cpp\include\services\VentaService.h" />
     <ClInclude Include="backend-cpp\include\structures\ArbolAVL.h" />
     <ClInclude Include="backend-cpp\include\structures\ArbolBMasVentas.h" />
+    <ClInclude Include="backend-cpp\include\structures\EntradaHashProducto.h" />
+    <ClInclude Include="backend-cpp\include\structures\GrafoProductos.h" />
     <ClInclude Include="backend-cpp\include\structures\NodoAVL.h" />
     <ClInclude Include="backend-cpp\include\structures\NodoBMas.h" />
+    <ClInclude Include="backend-cpp\include\structures\RelacionProducto.h" />
+    <ClInclude Include="backend-cpp\include\structures\TablaHashProductos.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="backend-cpp\src\clients\ApiClienteClient.cpp" />
@@ -168,7 +172,11 @@
     <ClCompile Include="backend-cpp\src\services\VentaService.cpp" />
     <ClCompile Include="backend-cpp\src\structures\ArbolAVL.cpp" />
     <ClCompile Include="backend-cpp\src\structures\ArbolBMasVentas.cpp" />
+    <ClCompile Include="backend-cpp\src\structures\EntradaHashProducto.cpp" />
+    <ClCompile Include="backend-cpp\src\structures\GrafoProductos.cpp" />
     <ClCompile Include="backend-cpp\src\structures\NodoAVL.cpp" />
+    <ClCompile Include="backend-cpp\src\structures\RelacionProducto.cpp" />
+    <ClCompile Include="backend-cpp\src\structures\TablaHashProductos.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
