@@ -5,7 +5,11 @@ PedidoService::PedidoService()
 {
 }
 
-PedidoPendiente PedidoService::crearYEncolarPedido(int clienteId, const std::string& fecha, double total)
+PedidoPendiente PedidoService::crearYEncolarPedido(
+    int clienteId,
+    const std::string& fecha,
+    double total,
+    const std::vector<DetalleVenta>& detalles)
 {
     PedidoPendiente pedido(
         siguienteNumeroPedido,
@@ -14,6 +18,8 @@ PedidoPendiente PedidoService::crearYEncolarPedido(int clienteId, const std::str
         "Pendiente",
         total
     );
+
+    pedido.setDetalles(detalles);
 
     colaPedidos.encolarPedido(pedido);
     siguienteNumeroPedido++;
@@ -24,6 +30,35 @@ PedidoPendiente PedidoService::crearYEncolarPedido(int clienteId, const std::str
 bool PedidoService::atenderSiguientePedido(PedidoPendiente& pedidoAtendido)
 {
     return colaPedidos.desencolarPedido(pedidoAtendido);
+}
+
+bool PedidoService::atenderSiguientePedidoYRegistrarVenta(
+    PedidoPendiente& pedidoAtendido,
+    Venta& ventaGenerada,
+    VentaService& ventaService)
+{
+    PedidoPendiente pedidoFrente;
+
+    if (!colaPedidos.desencolarPedido(pedidoFrente))
+    {
+        return false;
+    }
+
+    bool ventaRegistrada = ventaService.registrarVenta(
+        pedidoFrente.getClienteId(),
+        pedidoFrente.getDetalles(),
+        ventaGenerada
+    );
+
+    if (!ventaRegistrada)
+    {
+        return false;
+    }
+
+    pedidoFrente.setEstado("Procesado");
+    pedidoAtendido = pedidoFrente;
+
+    return true;
 }
 
 bool PedidoService::verSiguientePedido(PedidoPendiente& pedidoFrente) const

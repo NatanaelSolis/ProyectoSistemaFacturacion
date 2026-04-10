@@ -36,6 +36,11 @@ double PedidoPendiente::getTotal() const
     return total;
 }
 
+std::vector<DetalleVenta> PedidoPendiente::getDetalles() const
+{
+    return detalles;
+}
+
 void PedidoPendiente::setNumero(int numero)
 {
     this->numero = numero;
@@ -61,6 +66,16 @@ void PedidoPendiente::setTotal(double total)
     this->total = total;
 }
 
+void PedidoPendiente::setDetalles(const std::vector<DetalleVenta>& detalles)
+{
+    this->detalles = detalles;
+}
+
+void PedidoPendiente::agregarDetalle(const DetalleVenta& detalle)
+{
+    detalles.push_back(detalle);
+}
+
 void PedidoPendiente::mostrar() const
 {
     std::cout << "Numero de pedido: " << numero << std::endl;
@@ -68,4 +83,18 @@ void PedidoPendiente::mostrar() const
     std::cout << "Fecha: " << fecha << std::endl;
     std::cout << "Estado: " << estado << std::endl;
     std::cout << "Total: " << total << std::endl;
+    std::cout << "Cantidad de lineas: " << detalles.size() << std::endl;
+
+    if (!detalles.empty())
+    {
+        std::cout << "Detalles del pedido:" << std::endl;
+
+        for (size_t i = 0; i < detalles.size(); i++)
+        {
+            std::cout << "  Linea #" << (i + 1) << std::endl;
+            std::cout << "  Producto codigo: " << detalles[i].getProductoCodigo() << std::endl;
+            std::cout << "  Cantidad: " << detalles[i].getCantidad() << std::endl;
+            std::cout << "-----------------------------" << std::endl;
+        }
+    }
 }

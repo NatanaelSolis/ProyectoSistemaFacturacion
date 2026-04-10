@@ -62,7 +62,7 @@ void mostrarMenuPedidos()
     cout << "========= MENU PEDIDOS PENDIENTES =========" << endl;
     cout << "1. Crear y encolar pedido pendiente" << endl;
     cout << "2. Ver siguiente pedido" << endl;
-    cout << "3. Atender siguiente pedido" << endl;
+    cout << "3. Atender siguiente pedido y registrar venta" << endl;
     cout << "4. Mostrar cola de pedidos" << endl;
     cout << "5. Volver al menu principal" << endl;
     cout << "Seleccione una opcion: ";
@@ -453,7 +453,9 @@ int main()
                 {
                     int clienteId;
                     string fecha;
+                    int cantidadDetalles;
                     double total;
+                    vector<DetalleVenta> detalles;
 
                     cout << "Ingrese el ID del cliente: ";
                     cin >> clienteId;
@@ -463,13 +465,45 @@ int main()
                     cout << "Ingrese la fecha del pedido: ";
                     getline(cin, fecha);
 
-                    cout << "Ingrese el total del pedido: ";
-                    cin >> total;
+                    cout << "Cuantos productos desea agregar al pedido: ";
+                    cin >> cantidadDetalles;
 
-                    PedidoPendiente pedidoCreado = pedidoService.crearYEncolarPedido(clienteId, fecha, total);
+                    total = 0.0;
+
+                    for (int i = 0; i < cantidadDetalles; i++)
+                    {
+                        int productoCodigo;
+                        int cantidad;
+                        double precioUnitario;
+
+                        cout << "Producto #" << (i + 1) << endl;
+                        cout << "Codigo del producto: ";
+                        cin >> productoCodigo;
+                        cout << "Cantidad: ";
+                        cin >> cantidad;
+                        cout << "Precio unitario con IVA incluido: ";
+                        cin >> precioUnitario;
+
+                        DetalleVenta detalle;
+                        detalle.setProductoCodigo(productoCodigo);
+                        detalle.setCantidad(cantidad);
+                        detalle.setPrecioUnitario(precioUnitario);
+                        detalle.setSubtotal(precioUnitario * cantidad);
+
+                        detalles.push_back(detalle);
+                        total += detalle.getSubtotal();
+                    }
+
+                    PedidoPendiente pedidoCreado = pedidoService.crearYEncolarPedido(
+                        clienteId,
+                        fecha,
+                        total,
+                        detalles
+                    );
 
                     cout << "Pedido pendiente creado y encolado correctamente." << endl;
                     cout << "Numero generado: " << pedidoCreado.getNumero() << endl;
+                    cout << "Total del pedido: " << pedidoCreado.getTotal() << endl;
 
                     break;
                 }
@@ -494,15 +528,22 @@ int main()
                 case 3:
                 {
                     PedidoPendiente pedidoAtendido;
+                    Venta ventaGenerada;
 
-                    if (pedidoService.atenderSiguientePedido(pedidoAtendido))
+                    if (pedidoService.atenderSiguientePedidoYRegistrarVenta(
+                        pedidoAtendido,
+                        ventaGenerada,
+                        ventaService))
                     {
-                        cout << "Se atendio el siguiente pedido correctamente:" << endl;
+                        cout << "Pedido atendido correctamente y convertido en venta." << endl;
+                        cout << endl << "=== PEDIDO ATENDIDO ===" << endl;
                         pedidoAtendido.mostrar();
+                        cout << endl << "=== VENTA GENERADA ===" << endl;
+                        ventaGenerada.mostrar();
                     }
                     else
                     {
-                        cout << "No hay pedidos pendientes para atender." << endl;
+                        cout << "No se pudo atender el pedido o registrar la venta. Revise stock, cliente, productos o disponibilidad de la API." << endl;
                     }
 
                     break;
