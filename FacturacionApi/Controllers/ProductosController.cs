@@ -80,20 +80,39 @@ namespace FacturacionApi.Controllers
         }
 
         [HttpDelete("{codigo}")]
-        public async Task<ActionResult> Eliminar(int codigo)
+        public async Task<IActionResult> Eliminar(int codigo)
         {
             var producto = await _context.Productos.FindAsync(codigo);
 
             if (producto == null)
             {
-                return NotFound();
+                return NotFound("Producto no encontrado.");
             }
 
-            _context.Productos.Remove(producto);
+            producto.Estado = "Inactivo";
+
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { mensaje = "Producto desactivado correctamente." });
         }
+
+        [HttpPut("{codigo}/activar")]
+        public async Task<IActionResult> Activar(int codigo)
+        {
+            var producto = await _context.Productos.FindAsync(codigo);
+
+            if (producto == null)
+            {
+                return NotFound("Producto no encontrado.");
+            }
+
+            producto.Estado = "Activo";
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Producto activado correctamente." });
+        }
+
 
         private static string LimpiarCampo(string valor)
         {
