@@ -1,68 +1,33 @@
 import { useState } from "react";
+import AdminLayout from "./components/AdminLayout";
+import DashboardPage from "./pages/DashboardPage";
 import ProductosPage from "./pages/ProductosPage";
 import ClientesPage from "./pages/ClientesPage";
 import VentasPage from "./pages/VentasPage";
 
 function App() {
-    const [modulo, setModulo] = useState("productos");
+    const [modulo, setModulo] = useState("dashboard");
+
+    function renderModulo() {
+        switch (modulo) {
+            case "dashboard":
+                return <DashboardPage />;
+            case "productos":
+                return <ProductosPage />;
+            case "clientes":
+                return <ClientesPage />;
+            case "ventas":
+                return <VentasPage />;
+            default:
+                return <DashboardPage />;
+        }
+    }
 
     return (
-        <div>
-            <nav style={nav}>
-                <button
-                    style={modulo === "productos" ? botonActivo : botonNav}
-                    onClick={() => setModulo("productos")}
-                >
-                    Productos
-                </button>
-
-                <button
-                    style={modulo === "clientes" ? botonActivo : botonNav}
-                    onClick={() => setModulo("clientes")}
-                >
-                    Clientes
-                </button>
-
-                <button
-                    style={modulo === "ventas" ? botonActivo : botonNav}
-                    onClick={() => setModulo("ventas")}
-                >
-                    Ventas
-                </button>
-            </nav>
-
-            {modulo === "productos" && <ProductosPage />}
-            {modulo === "clientes" && <ClientesPage />}
-            {modulo === "ventas" && <VentasPage />}
-        </div>
+        <AdminLayout modulo={modulo} setModulo={setModulo}>
+            {renderModulo()}
+        </AdminLayout>
     );
 }
-
-const nav = {
-    display: "flex",
-    gap: "12px",
-    padding: "16px 24px",
-    backgroundColor: "#111827",
-};
-
-const botonNav = {
-    backgroundColor: "#374151",
-    color: "white",
-    border: "none",
-    padding: "10px 14px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "bold",
-};
-
-const botonActivo = {
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    padding: "10px 14px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "bold",
-};
 
 export default App;

@@ -113,6 +113,33 @@ namespace FacturacionApi.Controllers
             return Ok(new { mensaje = "Producto activado correctamente." });
         }
 
+        [HttpPut("{codigo}")]
+        public async Task<IActionResult> Actualizar(int codigo, Producto productoActualizado)
+        {
+            if (codigo != productoActualizado.Codigo)
+            {
+                return BadRequest("El código no coincide.");
+            }
+
+            var productoExistente = await _context.Productos.FindAsync(codigo);
+
+            if (productoExistente == null)
+            {
+                return NotFound("Producto no encontrado.");
+            }
+
+            productoExistente.Nombre = productoActualizado.Nombre;
+            productoExistente.Categoria = productoActualizado.Categoria;
+            productoExistente.Marca = productoActualizado.Marca;
+            productoExistente.Precio = productoActualizado.Precio;
+            productoExistente.Stock = productoActualizado.Stock;
+            productoExistente.Estado = productoActualizado.Estado;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Producto actualizado correctamente." });
+        }
+
 
         private static string LimpiarCampo(string valor)
         {

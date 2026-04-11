@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
     obtenerProductos,
     crearProducto,
+    actualizarProducto,
     desactivarProducto,
     activarProducto,
 } from "../services/productosApi";
@@ -21,9 +22,11 @@ function ProductosPage() {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState("");
     const [mensaje, setMensaje] = useState("");
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("Todos");
     const [formulario, setFormulario] = useState(productoInicial);
     const [guardando, setGuardando] = useState(false);
-    const [filtroEstado, setFiltroEstado] = useState("Todos");
+    const [modoEdicion, setModoEdicion] = useState(false);
 
     useEffect(() => {
         cargarProductos();
@@ -50,6 +53,26 @@ function ProductosPage() {
         }));
     }
 
+    function limpiarFormulario() {
+        setFormulario(productoInicial);
+        setModoEdicion(false);
+    }
+
+    function cargarProductoParaEditar(producto) {
+        setFormulario({
+            codigo: producto.codigo,
+            nombre: producto.nombre,
+            categoria: producto.categoria,
+            marca: producto.marca,
+            precio: producto.precio,
+            stock: producto.stock,
+            estado: producto.estado,
+        });
+        setModoEdicion(true);
+        setMensaje("");
+        setError("");
+    }
+
     async function manejarSubmit(e) {
         e.preventDefault();
 
@@ -58,7 +81,7 @@ function ProductosPage() {
             setError("");
             setMensaje("");
 
-            const nuevoProducto = {
+            const productoPayload = {
                 codigo: Number(formulario.codigo),
                 nombre: formulario.nombre,
                 categoria: formulario.categoria,
@@ -68,11 +91,16 @@ function ProductosPage() {
                 estado: formulario.estado,
             };
 
-            await crearProducto(nuevoProducto);
-            setMensaje("Producto creado correctamente.");
-            setFormulario(productoInicial);
+            if (modoEdicion) {
+                await actualizarProducto(Number(formulario.codigo), productoPayload);
+                setMensaje("Producto actualizado correctamente.");
+            } else {
+                await crearProducto(productoPayload);
+                setMensaje("Producto creado correctamente.");
+            }
+
+            limpiarFormulario();
             await cargarProductos();
-            setFiltroEstado("Todos");
         } catch (err) {
             setError(err.message);
         } finally {
@@ -111,9 +139,28 @@ function ProductosPage() {
     }
 
     const productosFiltrados = useMemo(() => {
-        if (filtroEstado === "Todos") return productos;
-        return productos.filter((p) => p.estado === filtroEstado);
-    }, [productos, filtroEstado]);
+        let resultado = productos;
+
+        if (filtroEstado !== "Todos") {
+            resultado = resultado.filter((p) => p.estado === filtroEstado);
+        }
+
+        const texto = busqueda.trim().toLowerCase();
+
+        if (!texto) return resultado;
+
+        return resultado.filter((producto) => {
+            return (
+                String(producto.codigo).includes(texto) ||
+                producto.nombre?.toLowerCase().includes(texto) ||
+                producto.categoria?.toLowerCase().includes(texto) ||
+                producto.marca?.toLowerCase().includes(texto) ||
+                String(producto.precio).includes(texto) ||
+                String(producto.stock).includes(texto) ||
+                producto.estado?.toLowerCase().includes(texto)
+            );
+        });
+    }, [productos, busqueda, filtroEstado]);
 
     const totalActivos = productos.filter((p) => p.estado === "Activo").length;
     const totalInactivos = productos.filter((p) => p.estado === "Inactivo").length;
@@ -124,7 +171,7 @@ function ProductosPage() {
                 <div>
                     <h1 style={{ margin: 0 }}>Productos</h1>
                     <p style={textoSecundario}>
-                        Administra tu catálogo de perfumes
+                        Administra tu catálogo con búsqueda y edición
                     </p>
                 </div>
 
@@ -135,7 +182,17 @@ function ProductosPage() {
 
             <div style={grid}>
                 <div style={card}>
-                    <h2 style={subtitulo}>Registrar producto</h2>
+                    <div style={cabeceraFormulario}>
+                        <h2 style={subtitulo}>
+                            {modoEdicion ? "Editar producto" : "Registrar producto"}
+                        </h2>
+
+                        {modoEdicion && (
+                            <button style={botonCancelar} type="button" onClick={limpiarFormulario}>
+                                Cancelar edición
+                            </button>
+                        )}
+                    </div>
 
                     <form onSubmit={manejarSubmit} style={formularioEstilo}>
                         <input
@@ -146,6 +203,7 @@ function ProductosPage() {
                             value={formulario.codigo}
                             onChange={manejarCambio}
                             required
+                            disabled={modoEdicion}
                         />
 
                         <input
@@ -209,7 +267,13 @@ function ProductosPage() {
                         </select>
 
                         <button style={botonPrimario} type="submit" disabled={guardando}>
-                            {guardando ? "Guardando..." : "Crear producto"}
+                            {guardando
+                                ? modoEdicion
+                                    ? "Actualizando..."
+                                    : "Guardando..."
+                                : modoEdicion
+                                    ? "Actualizar producto"
+                                    : "Crear producto"}
                         </button>
                     </form>
                 </div>
@@ -223,27 +287,37 @@ function ProductosPage() {
                             </p>
                         </div>
 
-                        <div style={grupoFiltros}>
-                            <button
-                                style={filtroEstado === "Todos" ? botonFiltroActivo : botonFiltro}
-                                onClick={() => setFiltroEstado("Todos")}
-                            >
-                                Todos
-                            </button>
+                        <div style={filtrosDerecha}>
+                            <input
+                                style={inputBusqueda}
+                                type="text"
+                                placeholder="Buscar por código, nombre, marca, categoría..."
+                                value={busqueda}
+                                onChange={(e) => setBusqueda(e.target.value)}
+                            />
 
-                            <button
-                                style={filtroEstado === "Activo" ? botonFiltroActivo : botonFiltro}
-                                onClick={() => setFiltroEstado("Activo")}
-                            >
-                                Activos
-                            </button>
+                            <div style={grupoFiltros}>
+                                <button
+                                    style={filtroEstado === "Todos" ? botonFiltroActivo : botonFiltro}
+                                    onClick={() => setFiltroEstado("Todos")}
+                                >
+                                    Todos
+                                </button>
 
-                            <button
-                                style={filtroEstado === "Inactivo" ? botonFiltroActivo : botonFiltro}
-                                onClick={() => setFiltroEstado("Inactivo")}
-                            >
-                                Inactivos
-                            </button>
+                                <button
+                                    style={filtroEstado === "Activo" ? botonFiltroActivo : botonFiltro}
+                                    onClick={() => setFiltroEstado("Activo")}
+                                >
+                                    Activos
+                                </button>
+
+                                <button
+                                    style={filtroEstado === "Inactivo" ? botonFiltroActivo : botonFiltro}
+                                    onClick={() => setFiltroEstado("Inactivo")}
+                                >
+                                    Inactivos
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -253,7 +327,7 @@ function ProductosPage() {
                     {cargando ? (
                         <p>Cargando productos...</p>
                     ) : productosFiltrados.length === 0 ? (
-                        <p>No hay productos para este filtro.</p>
+                        <p>No hay productos para mostrar.</p>
                     ) : (
                         <div style={tablaContenedor}>
                             <table style={tabla}>
@@ -276,7 +350,7 @@ function ProductosPage() {
                                             <td style={td}>{producto.nombre}</td>
                                             <td style={td}>{producto.categoria}</td>
                                             <td style={td}>{producto.marca}</td>
-                                            <td style={td}>{producto.precio}</td>
+                                            <td style={td}>₡{producto.precio}</td>
                                             <td style={td}>{producto.stock}</td>
                                             <td style={td}>
                                                 <span
@@ -290,21 +364,30 @@ function ProductosPage() {
                                                 </span>
                                             </td>
                                             <td style={td}>
-                                                {producto.estado === "Activo" ? (
+                                                <div style={acciones}>
                                                     <button
-                                                        style={botonDesactivar}
-                                                        onClick={() => manejarDesactivar(producto.codigo)}
+                                                        style={botonEditar}
+                                                        onClick={() => cargarProductoParaEditar(producto)}
                                                     >
-                                                        Desactivar
+                                                        Editar
                                                     </button>
-                                                ) : (
-                                                    <button
-                                                        style={botonActivar}
-                                                        onClick={() => manejarActivar(producto.codigo)}
-                                                    >
-                                                        Activar
-                                                    </button>
-                                                )}
+
+                                                    {producto.estado === "Activo" ? (
+                                                        <button
+                                                            style={botonDesactivar}
+                                                            onClick={() => manejarDesactivar(producto.codigo)}
+                                                        >
+                                                            Desactivar
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            style={botonActivar}
+                                                            onClick={() => manejarActivar(producto.codigo)}
+                                                        >
+                                                            Activar
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -344,9 +427,16 @@ const card = {
     boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
 };
 
-const subtitulo = {
-    marginTop: 0,
+const cabeceraFormulario = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
     marginBottom: "16px",
+};
+
+const subtitulo = {
+    margin: 0,
 };
 
 const subtituloListado = {
@@ -373,6 +463,14 @@ const input = {
     fontSize: "14px",
 };
 
+const inputBusqueda = {
+    padding: "10px 12px",
+    border: "1px solid #d1d5db",
+    borderRadius: "8px",
+    fontSize: "14px",
+    minWidth: "320px",
+};
+
 const botonPrimario = {
     backgroundColor: "#111827",
     color: "white",
@@ -392,6 +490,48 @@ const botonSecundario = {
     cursor: "pointer",
 };
 
+const botonCancelar = {
+    backgroundColor: "#6b7280",
+    color: "white",
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    cursor: "pointer",
+};
+
+const botonEditar = {
+    backgroundColor: "#f59e0b",
+    color: "white",
+    border: "none",
+    padding: "8px 10px",
+    borderRadius: "6px",
+    cursor: "pointer",
+};
+
+const botonDesactivar = {
+    backgroundColor: "#dc2626",
+    color: "white",
+    border: "none",
+    padding: "8px 10px",
+    borderRadius: "6px",
+    cursor: "pointer",
+};
+
+const botonActivar = {
+    backgroundColor: "#16a34a",
+    color: "white",
+    border: "none",
+    padding: "8px 10px",
+    borderRadius: "6px",
+    cursor: "pointer",
+};
+
+const acciones = {
+    display: "flex",
+    gap: "8px",
+    flexWrap: "wrap",
+};
+
 const barraSuperiorListado = {
     display: "flex",
     justifyContent: "space-between",
@@ -399,6 +539,13 @@ const barraSuperiorListado = {
     gap: "16px",
     marginBottom: "16px",
     flexWrap: "wrap",
+};
+
+const filtrosDerecha = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    alignItems: "flex-end",
 };
 
 const grupoFiltros = {
@@ -425,24 +572,6 @@ const botonFiltroActivo = {
     borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
-};
-
-const botonDesactivar = {
-    backgroundColor: "#dc2626",
-    color: "white",
-    border: "none",
-    padding: "8px 10px",
-    borderRadius: "6px",
-    cursor: "pointer",
-};
-
-const botonActivar = {
-    backgroundColor: "#16a34a",
-    color: "white",
-    border: "none",
-    padding: "8px 10px",
-    borderRadius: "6px",
-    cursor: "pointer",
 };
 
 const badgeActivo = {

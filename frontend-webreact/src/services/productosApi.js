@@ -27,6 +27,23 @@ export async function crearProducto(producto) {
     return await response.json().catch(() => null);
 }
 
+export async function actualizarProducto(codigo, producto) {
+    const response = await fetch(`${API_URL}/${codigo}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(producto),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "No se pudo actualizar el producto");
+    }
+
+    return await response.json().catch(() => null);
+}
+
 export async function desactivarProducto(codigo) {
     const response = await fetch(`${API_URL}/${codigo}`, {
         method: "DELETE",

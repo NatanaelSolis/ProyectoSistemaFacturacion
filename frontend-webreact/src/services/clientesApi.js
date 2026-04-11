@@ -27,6 +27,23 @@ export async function crearCliente(cliente) {
     return await response.json().catch(() => null);
 }
 
+export async function actualizarCliente(id, cliente) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cliente),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "No se pudo actualizar el cliente");
+    }
+
+    return await response.json().catch(() => null);
+}
+
 export async function eliminarCliente(id) {
     const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",

@@ -93,6 +93,32 @@ namespace FacturacionApi.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Actualizar(int id, Cliente clienteActualizado)
+        {
+            if (id != clienteActualizado.Id)
+            {
+                return BadRequest("El ID no coincide.");
+            }
+
+            var clienteExistente = await _context.Clientes.FindAsync(id);
+
+            if (clienteExistente == null)
+            {
+                return NotFound("Cliente no encontrado.");
+            }
+
+            clienteExistente.Nombre = clienteActualizado.Nombre;
+            clienteExistente.Correo = clienteActualizado.Correo;
+            clienteExistente.Telefono = clienteActualizado.Telefono;
+            clienteExistente.Direccion = clienteActualizado.Direccion;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Cliente actualizado correctamente." });
+        }
+
+
         private static string LimpiarCampo(string valor)
         {
             return (valor ?? string.Empty)
