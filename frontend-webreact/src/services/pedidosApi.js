@@ -10,11 +10,21 @@ export async function obtenerPedidos() {
     return await response.json();
 }
 
+export async function obtenerPedidoPorNumero(numero) {
+    const response = await fetch(`${API_URL}/${numero}`);
+
+    if (!response.ok) {
+        throw new Error("No se pudo obtener el pedido");
+    }
+
+    return await response.json();
+}
+
 export async function obtenerSiguientePedido() {
     const response = await fetch(`${API_URL}/siguiente`);
 
     if (!response.ok) {
-        throw new Error("No se pudo obtener el siguiente pedido");
+        throw new Error("No hay pedidos pendientes");
     }
 
     return await response.json();
@@ -37,8 +47,8 @@ export async function crearPedido(pedido) {
     return await response.json();
 }
 
-export async function atenderPedido() {
-    const response = await fetch(`${API_URL}/atender`, {
+export async function atenderPedido(numero) {
+    const response = await fetch(`${API_URL}/${numero}/atender`, {
         method: "POST",
     });
 

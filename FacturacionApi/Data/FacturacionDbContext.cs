@@ -14,6 +14,8 @@ namespace FacturacionApi.Data
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<DetalleVenta> DetalleVenta { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<DetallePedido> DetallePedido { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +28,18 @@ namespace FacturacionApi.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<DetalleVenta>()
+                .HasOne(d => d.Producto)
+                .WithMany()
+                .HasForeignKey(d => d.ProductoCodigo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Pedido>()
+                .HasMany(p => p.Detalles)
+                .WithOne(d => d.Pedido)
+                .HasForeignKey(d => d.PedidoNumero)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DetallePedido>()
                 .HasOne(d => d.Producto)
                 .WithMany()
                 .HasForeignKey(d => d.ProductoCodigo)
@@ -48,6 +62,26 @@ namespace FacturacionApi.Data
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<DetalleVenta>()
+                .Property(d => d.Subtotal)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.Subtotal)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.IVA)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.Total)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<DetallePedido>()
+                .Property(d => d.PrecioUnitario)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<DetallePedido>()
                 .Property(d => d.Subtotal)
                 .HasPrecision(18, 2);
         }

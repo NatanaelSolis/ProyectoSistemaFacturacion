@@ -6,7 +6,7 @@ import {
     obtenerVentaPorNumero,
     obtenerVentas,
 } from "../services/ventasApi";
-import FacturaPreview from "../components/FacturaPreview";
+import FacturaPrintModal from "../components/FacturaPrintModal";
 
 const lineaInicial = {
     productoCodigo: "",
@@ -21,6 +21,7 @@ function VentasPage() {
     const [detalles, setDetalles] = useState([{ ...lineaInicial }]);
     const [numeroBusqueda, setNumeroBusqueda] = useState("");
     const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
+    const [modalFacturaAbierto, setModalFacturaAbierto] = useState(false);
     const [cargando, setCargando] = useState(true);
     const [guardando, setGuardando] = useState(false);
     const [error, setError] = useState("");
@@ -43,7 +44,7 @@ function VentasPage() {
 
             setVentas(ventasData);
             setClientes(clientesData);
-            setProductos(productosData.filter((p) => p.estado === "Activo"));
+            setProductos(productosData);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -66,11 +67,13 @@ function VentasPage() {
         setDetalles(detalles.filter((_, i) => i !== index));
     }
 
+    const productosActivos = productos.filter((p) => p.estado === "Activo");
+
     const resumen = useMemo(() => {
         let total = 0;
 
         for (const linea of detalles) {
-            const producto = productos.find(
+            const producto = productosActivos.find(
                 (p) => Number(p.codigo) === Number(linea.productoCodigo)
             );
 
@@ -87,7 +90,7 @@ function VentasPage() {
             IVA,
             total,
         };
-    }, [detalles, productos]);
+    }, [detalles, productosActivos]);
 
     async function manejarCrearVenta(e) {
         e.preventDefault();
@@ -112,6 +115,7 @@ function VentasPage() {
             setClienteId("");
             setDetalles([{ ...lineaInicial }]);
             setVentaSeleccionada(ventaCompleta);
+            setModalFacturaAbierto(true);
             await cargarTodo();
         } catch (err) {
             setError(err.message);
@@ -132,15 +136,72 @@ function VentasPage() {
 
             const venta = await obtenerVentaPorNumero(Number(numeroBusqueda));
             setVentaSeleccionada(venta);
+            setModalFacturaAbierto(true);
         } catch (err) {
             setVentaSeleccionada(null);
             setError(err.message);
         }
     }
 
-    function seleccionarVenta(venta) {
-        setVentaSeleccionada(venta);
-        setNumeroBusqueda(venta.numero);
+    async function abrirFactura(ventaBase) {
+        try {
+            setError("");
+            const ventaCompleta = await obtenerVentaPorNumero(Number(ventaBase.numero));
+            setVentaSeleccionada(ventaCompleta);
+            setModalFacturaAbierto(true);
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+
+    function imprimirFactura() {
+        const contenido = document.getElementById("factura-print-area");
+        if (!contenido) return;
+
+        const ventana = window.open("", "_blank", "width=1000,height=800");
+        if (!ventana) return;
+
+        ventana.document.write(`
+      <html>
+        <head>
+          <title>Factura</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 24px;
+              background: white;
+              color: #111827;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 12px;
+            }
+            th {
+              background: #111827;
+              color: white;
+              text-align: left;
+              padding: 12px;
+              font-size: 14px;
+            }
+            td {
+              border-bottom: 1px solid #e5e7eb;
+              padding: 12px;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          ${contenido.innerHTML}
+        </body>
+      </html>
+    `);
+
+        ventana.document.close();
+        ventana.focus();
+        ventana.print();
+        ventana.close();
     }
 
     function nombreClientePorId(id) {
@@ -166,7 +227,7 @@ function VentasPage() {
                 <div>
                     <h1 style={{ margin: 0 }}>Punto de Venta</h1>
                     <p style={textoSecundario}>
-                        Registra ventas y visualiza facturas de forma más profesional
+                        Registra ventas y abre facturas profesionales
                     </p>
                 </div>
 
@@ -179,93 +240,93 @@ function VentasPage() {
             {mensaje && <p style={textoExito}>{mensaje}</p>}
 
             <div style={gridPrincipal}>
-                <div style={columnaIzquierda}>
-                    <div style={card}>
-                        <h2 style={subtitulo}>Nueva venta</h2>
+                <div style={card}>
+                    <h2 style={subtitulo}>Nueva venta</h2>
 
-                        <form onSubmit={manejarCrearVenta} style={formularioEstilo}>
-                            <label style={label}>Cliente</label>
-                            <select
-                                style={input}
-                                value={clienteId}
-                                onChange={(e) => setClienteId(e.target.value)}
-                                required
-                            >
-                                <option value="">Seleccione un cliente</option>
-                                {clientes.map((cliente) => (
-                                    <option key={cliente.id} value={cliente.id}>
-                                        {cliente.nombre} ({cliente.id})
-                                    </option>
-                                ))}
-                            </select>
-
-                            <label style={label}>Productos</label>
-
-                            {detalles.map((linea, index) => (
-                                <div key={index} style={lineaCard}>
-                                    <select
-                                        style={input}
-                                        value={linea.productoCodigo}
-                                        onChange={(e) =>
-                                            actualizarLinea(index, "productoCodigo", e.target.value)
-                                        }
-                                        required
-                                    >
-                                        <option value="">Seleccione un producto</option>
-                                        {productos.map((producto) => (
-                                            <option key={producto.codigo} value={producto.codigo}>
-                                                {producto.nombre} - ₡{producto.precio}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <input
-                                        style={input}
-                                        type="number"
-                                        min="1"
-                                        value={linea.cantidad}
-                                        onChange={(e) =>
-                                            actualizarLinea(index, "cantidad", e.target.value)
-                                        }
-                                        placeholder="Cantidad"
-                                        required
-                                    />
-
-                                    <button
-                                        type="button"
-                                        style={botonEliminar}
-                                        onClick={() => eliminarLinea(index)}
-                                    >
-                                        Quitar
-                                    </button>
-                                </div>
+                    <form onSubmit={manejarCrearVenta} style={formularioEstilo}>
+                        <label style={label}>Cliente</label>
+                        <select
+                            style={input}
+                            value={clienteId}
+                            onChange={(e) => setClienteId(e.target.value)}
+                            required
+                        >
+                            <option value="">Seleccione un cliente</option>
+                            {clientes.map((cliente) => (
+                                <option key={cliente.id} value={cliente.id}>
+                                    {cliente.nombre} ({cliente.id})
+                                </option>
                             ))}
+                        </select>
 
-                            <button type="button" style={botonNeutro} onClick={agregarLinea}>
-                                Agregar línea
-                            </button>
+                        <label style={label}>Productos</label>
 
-                            <div style={resumenCard}>
-                                <p style={resumenLinea}>
-                                    <span>Subtotal:</span>
-                                    <strong>₡{resumen.subtotal.toFixed(2)}</strong>
-                                </p>
-                                <p style={resumenLinea}>
-                                    <span>IVA:</span>
-                                    <strong>₡{resumen.IVA.toFixed(2)}</strong>
-                                </p>
-                                <p style={resumenTotal}>
-                                    <span>Total:</span>
-                                    <strong>₡{resumen.total.toFixed(2)}</strong>
-                                </p>
+                        {detalles.map((linea, index) => (
+                            <div key={index} style={lineaCard}>
+                                <select
+                                    style={input}
+                                    value={linea.productoCodigo}
+                                    onChange={(e) =>
+                                        actualizarLinea(index, "productoCodigo", e.target.value)
+                                    }
+                                    required
+                                >
+                                    <option value="">Seleccione un producto</option>
+                                    {productosActivos.map((producto) => (
+                                        <option key={producto.codigo} value={producto.codigo}>
+                                            {producto.nombre} - ₡{producto.precio}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <input
+                                    style={input}
+                                    type="number"
+                                    min="1"
+                                    value={linea.cantidad}
+                                    onChange={(e) =>
+                                        actualizarLinea(index, "cantidad", e.target.value)
+                                    }
+                                    placeholder="Cantidad"
+                                    required
+                                />
+
+                                <button
+                                    type="button"
+                                    style={botonEliminar}
+                                    onClick={() => eliminarLinea(index)}
+                                >
+                                    Quitar
+                                </button>
                             </div>
+                        ))}
 
-                            <button style={botonPrimario} type="submit" disabled={guardando}>
-                                {guardando ? "Registrando..." : "Registrar venta"}
-                            </button>
-                        </form>
-                    </div>
+                        <button type="button" style={botonNeutro} onClick={agregarLinea}>
+                            Agregar línea
+                        </button>
 
+                        <div style={resumenCard}>
+                            <p style={resumenLinea}>
+                                <span>Subtotal:</span>
+                                <strong>₡{resumen.subtotal.toFixed(2)}</strong>
+                            </p>
+                            <p style={resumenLinea}>
+                                <span>IVA:</span>
+                                <strong>₡{resumen.IVA.toFixed(2)}</strong>
+                            </p>
+                            <p style={resumenTotal}>
+                                <span>Total:</span>
+                                <strong>₡{resumen.total.toFixed(2)}</strong>
+                            </p>
+                        </div>
+
+                        <button style={botonPrimario} type="submit" disabled={guardando}>
+                            {guardando ? "Registrando..." : "Registrar venta"}
+                        </button>
+                    </form>
+                </div>
+
+                <div style={columnaDerecha}>
                     <div style={card}>
                         <h2 style={subtitulo}>Buscar factura</h2>
 
@@ -278,13 +339,9 @@ function VentasPage() {
                                 onChange={(e) => setNumeroBusqueda(e.target.value)}
                             />
                             <button style={botonSecundario} onClick={manejarBuscarVenta}>
-                                Buscar
+                                Abrir
                             </button>
                         </div>
-
-                        <p style={textoSecundario}>
-                            Busca una venta por número y se mostrará la factura detallada.
-                        </p>
                     </div>
 
                     <div style={card}>
@@ -306,16 +363,18 @@ function VentasPage() {
                                             <p style={ventaTexto}>
                                                 Cliente: {nombreClientePorId(venta.clienteId)}
                                             </p>
-                                            <p style={ventaTexto}>Fecha: {formatearFecha(venta.fecha)}</p>
+                                            <p style={ventaTexto}>
+                                                Fecha: {formatearFecha(venta.fecha)}
+                                            </p>
                                         </div>
 
                                         <div style={ventaLadoDerecho}>
                                             <p style={ventaMonto}>₡{Number(venta.total).toFixed(2)}</p>
                                             <button
                                                 style={botonVer}
-                                                onClick={() => seleccionarVenta(venta)}
+                                                onClick={() => abrirFactura(venta)}
                                             >
-                                                Ver factura
+                                                Ver / Imprimir
                                             </button>
                                         </div>
                                     </div>
@@ -324,19 +383,18 @@ function VentasPage() {
                         )}
                     </div>
                 </div>
-
-                <div style={columnaDerecha}>
-                    <FacturaPreview
-                        venta={ventaSeleccionada}
-                        clienteNombre={
-                            ventaSeleccionada
-                                ? nombreClientePorId(ventaSeleccionada.clienteId)
-                                : ""
-                        }
-                        detallesConNombre={detallesConNombre}
-                    />
-                </div>
             </div>
+
+            <FacturaPrintModal
+                abierto={modalFacturaAbierto}
+                onClose={() => setModalFacturaAbierto(false)}
+                onPrint={imprimirFactura}
+                venta={ventaSeleccionada}
+                clienteNombre={
+                    ventaSeleccionada ? nombreClientePorId(ventaSeleccionada.clienteId) : ""
+                }
+                detallesConNombre={detallesConNombre}
+            />
         </div>
     );
 }
@@ -361,6 +419,12 @@ const encabezado = {
     marginBottom: "24px",
 };
 
+const textoSecundario = {
+    margin: "6px 0 0 0",
+    color: "#6b7280",
+    fontSize: "14px",
+};
+
 const gridPrincipal = {
     display: "grid",
     gridTemplateColumns: "1.2fr 0.9fr",
@@ -368,15 +432,10 @@ const gridPrincipal = {
     alignItems: "start",
 };
 
-const columnaIzquierda = {
+const columnaDerecha = {
     display: "flex",
     flexDirection: "column",
     gap: "24px",
-};
-
-const columnaDerecha = {
-    position: "sticky",
-    top: "24px",
 };
 
 const card = {
@@ -390,12 +449,6 @@ const card = {
 const subtitulo = {
     marginTop: 0,
     marginBottom: "16px",
-};
-
-const textoSecundario = {
-    margin: 0,
-    color: "#6b7280",
-    fontSize: "14px",
 };
 
 const formularioEstilo = {
@@ -549,7 +602,7 @@ const ventaTexto = {
 
 const ventaLadoDerecho = {
     textAlign: "right",
-    minWidth: "140px",
+    minWidth: "160px",
 };
 
 const ventaMonto = {

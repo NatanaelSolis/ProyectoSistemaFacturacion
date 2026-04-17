@@ -20,9 +20,9 @@ function PedidosPage() {
     const [clienteId, setClienteId] = useState("");
     const [detalles, setDetalles] = useState([{ ...lineaInicial }]);
     const [siguientePedido, setSiguientePedido] = useState(null);
-    const [pedidoAtendido, setPedidoAtendido] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [guardando, setGuardando] = useState(false);
+    const [procesando, setProcesando] = useState(false);
     const [error, setError] = useState("");
     const [mensaje, setMensaje] = useState("");
 
@@ -86,7 +86,14 @@ function PedidosPage() {
             }
         }
 
-        return { total };
+        const subtotal = total / 1.13;
+        const IVA = total - subtotal;
+
+        return {
+            subtotal,
+            IVA,
+            total,
+        };
     }, [detalles, productos]);
 
     async function manejarCrearPedido(e) {
@@ -96,7 +103,6 @@ function PedidosPage() {
             setGuardando(true);
             setError("");
             setMensaje("");
-            setPedidoAtendido(null);
 
             const pedido = {
                 clienteId: Number(clienteId),
@@ -108,12 +114,9 @@ function PedidosPage() {
 
             const resultado = await crearPedido(pedido);
 
-            setMensaje(
-                `Pedido pendiente creado correctamente. Número: ${resultado.numero ?? ""}`
-            );
+            setMensaje(`Pedido creado correctamente. Número: ${resultado.numero}`);
             setClienteId("");
             setDetalles([{ ...lineaInicial }]);
-
             await cargarTodo();
         } catch (err) {
             setError(err.message);
@@ -123,16 +126,24 @@ function PedidosPage() {
     }
 
     async function manejarAtenderPedido() {
+        if (!siguientePedido) return;
+
         try {
+            setProcesando(true);
             setError("");
             setMensaje("");
 
-            const resultado = await atenderPedido();
-            setPedidoAtendido(resultado);
-            setMensaje("Pedido atendido correctamente.");
+            const resultado = await atenderPedido(siguientePedido.numero);
+
+            setMensaje(
+                `Pedido #${resultado.pedidoNumero} atendido correctamente. Venta generada: #${resultado.ventaNumero}`
+            );
+
             await cargarTodo();
         } catch (err) {
             setError(err.message);
+        } finally {
+            setProcesando(false);
         }
     }
 
@@ -150,9 +161,9 @@ function PedidosPage() {
         <div style={contenedor}>
             <div style={encabezado}>
                 <div>
-                    <h1 style={{ margin: 0 }}>Pedidos pendientes</h1>
+                    <h1 style={{ margin: 0 }}>Pedidos</h1>
                     <p style={textoSecundario}>
-                        Gestiona la cola de pedidos antes de convertirlos en venta
+                        Gestiona pedidos pendientes y procésalos en orden
                     </p>
                 </div>
 
@@ -231,6 +242,14 @@ function PedidosPage() {
                             </button>
 
                             <div style={resumenCard}>
+                                <p style={resumenLinea}>
+                                    <span>Subtotal estimado:</span>
+                                    <strong>₡{resumen.subtotal.toFixed(2)}</strong>
+                                </p>
+                                <p style={resumenLinea}>
+                                    <span>IVA estimado:</span>
+                                    <strong>₡{resumen.IVA.toFixed(2)}</strong>
+                                </p>
                                 <p style={resumenTotal}>
                                     <span>Total estimado:</span>
                                     <strong>₡{resumen.total.toFixed(2)}</strong>
@@ -245,14 +264,14 @@ function PedidosPage() {
 
                     <div style={card}>
                         <div style={cabeceraListado}>
-                            <h2 style={subtitulo}>Cola de pedidos</h2>
-                            <span style={contadorBadge}>{pedidos.length} en cola</span>
+                            <h2 style={subtitulo}>Pedidos registrados</h2>
+                            <span style={contadorBadge}>{pedidos.length} pedidos</span>
                         </div>
 
                         {cargando ? (
                             <p>Cargando pedidos...</p>
                         ) : pedidos.length === 0 ? (
-                            <p>No hay pedidos pendientes.</p>
+                            <p>No hay pedidos registrados.</p>
                         ) : (
                             <div style={listaPedidos}>
                                 {pedidos.map((pedido) => (
@@ -276,16 +295,20 @@ function PedidosPage() {
 
                 <div style={columnaDerecha}>
                     <div style={card}>
-                        <h2 style={subtitulo}>Siguiente pedido</h2>
+                        <h2 style={subtitulo}>Siguiente pedido pendiente</h2>
 
                         {siguientePedido ? (
                             <div>
-                                <p><strong>Número:</strong> {siguientePedido.numero}</p>
+                                <p>
+                                    <strong>Número:</strong> {siguientePedido.numero}
+                                </p>
                                 <p>
                                     <strong>Cliente:</strong>{" "}
                                     {nombreClientePorId(siguientePedido.clienteId)}
                                 </p>
-                                <p><strong>Estado:</strong> {siguientePedido.estado}</p>
+                                <p>
+                                    <strong>Estado:</strong> {siguientePedido.estado}
+                                </p>
                                 <p>
                                     <strong>Total:</strong> ₡
                                     {Number(siguientePedido.total || 0).toFixed(2)}
@@ -298,38 +321,23 @@ function PedidosPage() {
                                             <div key={i} style={detalleLinea}>
                                                 <p>Producto: {nombreProductoPorCodigo(d.productoCodigo)}</p>
                                                 <p>Cantidad: {d.cantidad}</p>
+                                                <p>Precio unitario: ₡{Number(d.precioUnitario || 0).toFixed(2)}</p>
+                                                <p>Subtotal: ₡{Number(d.subtotal || 0).toFixed(2)}</p>
                                             </div>
                                         ))}
                                     </>
                                 )}
 
-                                <button style={botonPrimario} onClick={manejarAtenderPedido}>
-                                    Atender pedido
+                                <button
+                                    style={botonPrimario}
+                                    onClick={manejarAtenderPedido}
+                                    disabled={procesando}
+                                >
+                                    {procesando ? "Procesando..." : "Atender pedido"}
                                 </button>
                             </div>
                         ) : (
-                            <p>No hay pedidos pendientes en la cola.</p>
-                        )}
-                    </div>
-
-                    <div style={card}>
-                        <h2 style={subtitulo}>Último pedido atendido</h2>
-
-                        {pedidoAtendido ? (
-                            <div>
-                                <p><strong>Número:</strong> {pedidoAtendido.numero}</p>
-                                <p>
-                                    <strong>Cliente:</strong>{" "}
-                                    {nombreClientePorId(pedidoAtendido.clienteId)}
-                                </p>
-                                <p><strong>Estado:</strong> {pedidoAtendido.estado}</p>
-                                <p>
-                                    <strong>Total:</strong> ₡
-                                    {Number(pedidoAtendido.total || 0).toFixed(2)}
-                                </p>
-                            </div>
-                        ) : (
-                            <p>No has atendido pedidos en esta sesión.</p>
+                            <p>No hay pedidos pendientes.</p>
                         )}
                     </div>
                 </div>
@@ -349,6 +357,12 @@ const encabezado = {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "24px",
+};
+
+const textoSecundario = {
+    margin: "6px 0 0 0",
+    color: "#6b7280",
+    fontSize: "14px",
 };
 
 const gridPrincipal = {
@@ -381,12 +395,6 @@ const card = {
 const subtitulo = {
     marginTop: 0,
     marginBottom: "16px",
-};
-
-const textoSecundario = {
-    margin: 0,
-    color: "#6b7280",
-    fontSize: "14px",
 };
 
 const formularioEstilo = {
@@ -426,10 +434,18 @@ const resumenCard = {
     backgroundColor: "#f9fafb",
 };
 
+const resumenLinea = {
+    display: "flex",
+    justifyContent: "space-between",
+    margin: "6px 0",
+};
+
 const resumenTotal = {
     display: "flex",
     justifyContent: "space-between",
-    margin: 0,
+    margin: "10px 0 0 0",
+    paddingTop: "10px",
+    borderTop: "2px solid #111827",
     fontSize: "18px",
 };
 

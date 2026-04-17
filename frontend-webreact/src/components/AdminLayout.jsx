@@ -4,6 +4,7 @@ function AdminLayout({ modulo, setModulo, children }) {
         { key: "productos", label: "Productos" },
         { key: "clientes", label: "Clientes" },
         { key: "ventas", label: "Ventas" },
+        { key: "pedidos", label: "Pedidos" },
     ];
 
     return (
@@ -32,7 +33,7 @@ function AdminLayout({ modulo, setModulo, children }) {
                     <div>
                         <h1 style={topbarTitle}>Sistema de Facturación</h1>
                         <p style={topbarSubtitle}>
-                            Gestión de productos, clientes y ventas
+                            Gestión de productos, clientes, ventas y pedidos
                         </p>
                     </div>
                 </header>

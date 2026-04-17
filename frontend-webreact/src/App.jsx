@@ -4,6 +4,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ProductosPage from "./pages/ProductosPage";
 import ClientesPage from "./pages/ClientesPage";
 import VentasPage from "./pages/VentasPage";
+import PedidosPage from "./pages/PedidosPage";
 
 function App() {
     const [modulo, setModulo] = useState("dashboard");
@@ -18,6 +19,8 @@ function App() {
                 return <ClientesPage />;
             case "ventas":
                 return <VentasPage />;
+            case "pedidos":
+                return <PedidosPage />;
             default:
                 return <DashboardPage />;
         }
