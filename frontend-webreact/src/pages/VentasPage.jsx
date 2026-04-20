@@ -11,6 +11,7 @@ import FacturaPrintModal from "../components/FacturaPrintModal";
 const lineaInicial = {
     productoCodigo: "",
     cantidad: 1,
+    precioUnitario: "",
 };
 
 function VentasPage() {
@@ -52,9 +53,22 @@ function VentasPage() {
         }
     }
 
+    const productosActivos = productos.filter((p) => p.estado === "Activo");
+
     function actualizarLinea(index, campo, valor) {
         const copia = [...detalles];
         copia[index][campo] = valor;
+
+        if (campo === "productoCodigo") {
+            const producto = productosActivos.find(
+                (p) => Number(p.codigo) === Number(valor)
+            );
+
+            if (producto) {
+                copia[index].precioUnitario = String(producto.precio);
+            }
+        }
+
         setDetalles(copia);
     }
 
@@ -67,19 +81,17 @@ function VentasPage() {
         setDetalles(detalles.filter((_, i) => i !== index));
     }
 
-    const productosActivos = productos.filter((p) => p.estado === "Activo");
+    function subtotalLinea(linea) {
+        const cantidad = Number(linea.cantidad || 0);
+        const precioUnitario = Number(linea.precioUnitario || 0);
+        return cantidad * precioUnitario;
+    }
 
     const resumen = useMemo(() => {
         let total = 0;
 
         for (const linea of detalles) {
-            const producto = productosActivos.find(
-                (p) => Number(p.codigo) === Number(linea.productoCodigo)
-            );
-
-            if (producto && Number(linea.cantidad) > 0) {
-                total += Number(producto.precio) * Number(linea.cantidad);
-            }
+            total += subtotalLinea(linea);
         }
 
         const subtotal = total / 1.13;
@@ -90,7 +102,7 @@ function VentasPage() {
             IVA,
             total,
         };
-    }, [detalles, productosActivos]);
+    }, [detalles]);
 
     async function manejarCrearVenta(e) {
         e.preventDefault();
@@ -105,6 +117,7 @@ function VentasPage() {
                 detalles: detalles.map((d) => ({
                     productoCodigo: Number(d.productoCodigo),
                     cantidad: Number(d.cantidad),
+                    precioUnitario: Number(d.precioUnitario),
                 })),
             };
 
@@ -227,7 +240,7 @@ function VentasPage() {
                 <div>
                     <h1 style={{ margin: 0 }}>Punto de Venta</h1>
                     <p style={textoSecundario}>
-                        Registra ventas y abre facturas profesionales
+                        Registra ventas con precio editable por línea
                     </p>
                 </div>
 
@@ -259,7 +272,7 @@ function VentasPage() {
                             ))}
                         </select>
 
-                        <label style={label}>Productos</label>
+                        <label style={label}>Líneas de venta</label>
 
                         {detalles.map((linea, index) => (
                             <div key={index} style={lineaCard}>
@@ -290,6 +303,23 @@ function VentasPage() {
                                     placeholder="Cantidad"
                                     required
                                 />
+
+                                <input
+                                    style={input}
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={linea.precioUnitario}
+                                    onChange={(e) =>
+                                        actualizarLinea(index, "precioUnitario", e.target.value)
+                                    }
+                                    placeholder="Precio unitario"
+                                    required
+                                />
+
+                                <div style={subtotalBox}>
+                                    Subtotal línea: <strong>₡{subtotalLinea(linea).toFixed(2)}</strong>
+                                </div>
 
                                 <button
                                     type="button"
@@ -475,10 +505,15 @@ const lineaCard = {
     borderRadius: "10px",
     padding: "12px",
     display: "grid",
-    gridTemplateColumns: "1fr 120px 100px",
+    gridTemplateColumns: "1.3fr 120px 150px 1fr 100px",
     gap: "10px",
     backgroundColor: "#f9fafb",
     alignItems: "center",
+};
+
+const subtotalBox = {
+    fontSize: "14px",
+    color: "#111827",
 };
 
 const resumenCard = {

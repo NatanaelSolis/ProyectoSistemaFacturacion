@@ -89,7 +89,6 @@ namespace FacturacionApi.Controllers
             }
 
             var cliente = await _context.Clientes.FindAsync(request.ClienteId);
-
             if (cliente == null)
             {
                 return BadRequest("El cliente no existe.");
@@ -127,6 +126,15 @@ namespace FacturacionApi.Controllers
                 {
                     return BadRequest($"Stock insuficiente para el producto con código {producto.Codigo}.");
                 }
+
+                decimal precioUsado = item.PrecioUnitario.HasValue && item.PrecioUnitario.Value > 0
+                    ? item.PrecioUnitario.Value
+                    : producto.Precio;
+
+                if (precioUsado <= 0)
+                {
+                    return BadRequest($"El precio unitario del producto con código {producto.Codigo} no es válido.");
+                }
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -146,36 +154,39 @@ namespace FacturacionApi.Controllers
                 _context.Ventas.Add(venta);
                 await _context.SaveChangesAsync();
 
-                decimal totalVentaConIva = 0m;
+                decimal totalVentaConIVA = 0m;
 
                 foreach (var item in request.Detalles)
                 {
                     var producto = productos.First(p => p.Codigo == item.ProductoCodigo);
 
-                    decimal precioUnitarioConIva = producto.Precio;
-                    decimal subtotalLineaConIva = precioUnitarioConIva * item.Cantidad;
+                    decimal precioUnitarioConIVA = item.PrecioUnitario.HasValue && item.PrecioUnitario.Value > 0
+                        ? item.PrecioUnitario.Value
+                        : producto.Precio;
+
+                    decimal subtotalLineaConIVA = precioUnitarioConIVA * item.Cantidad;
 
                     var detalle = new DetalleVenta
                     {
                         VentaNumero = venta.Numero,
                         ProductoCodigo = producto.Codigo,
                         Cantidad = item.Cantidad,
-                        PrecioUnitario = precioUnitarioConIva,
-                        Subtotal = subtotalLineaConIva
+                        PrecioUnitario = precioUnitarioConIVA,
+                        Subtotal = subtotalLineaConIVA
                     };
 
                     _context.DetalleVenta.Add(detalle);
 
                     producto.Stock -= item.Cantidad;
-                    totalVentaConIva += subtotalLineaConIva;
+                    totalVentaConIVA += subtotalLineaConIVA;
                 }
 
-                decimal subtotalSinIva = Math.Round(totalVentaConIva / 1.13m, 2, MidpointRounding.AwayFromZero);
-                decimal ivaIncluido = Math.Round(totalVentaConIva - subtotalSinIva, 2, MidpointRounding.AwayFromZero);
+                decimal subtotalSinIVA = Math.Round(totalVentaConIVA / 1.13m, 2, MidpointRounding.AwayFromZero);
+                decimal ivaIncluido = Math.Round(totalVentaConIVA - subtotalSinIVA, 2, MidpointRounding.AwayFromZero);
 
-                venta.Subtotal = subtotalSinIva;
+                venta.Subtotal = subtotalSinIVA;
                 venta.IVA = ivaIncluido;
-                venta.Total = totalVentaConIva;
+                venta.Total = totalVentaConIVA;
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -200,5 +211,6 @@ namespace FacturacionApi.Controllers
                 throw;
             }
         }
+
     }
 }
